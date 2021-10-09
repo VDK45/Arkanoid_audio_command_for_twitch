@@ -77,14 +77,5 @@ def run():
           actions(command())
 
 
-print('Asistan stop')
-
-          
-          
-
-
-
-
-
 
 

@@ -10,8 +10,8 @@ import Audio_assistant as aa
 
 thread1 = threading.Thread(target=twitch_bot.run, args=())
 thread1.start()
-##thread2 = threading.Thread(target=aa.run, args=())
-##thread2.start()
+thread2 = threading.Thread(target=aa.run, args=())
+thread2.start()
 
 def resource_path(relative_path):
     try:
