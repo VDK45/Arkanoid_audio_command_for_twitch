@@ -213,4 +213,7 @@ while loop:
 
 
 print('Game stoped')
+twitch_bot.loop_true = False # Stop twitch bot
+twitch_bot.send_mess('ARKANOID has stopped')
+aa.assis = False # Audio assis stop
 pygame.quit()

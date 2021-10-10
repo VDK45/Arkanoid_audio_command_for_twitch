@@ -142,9 +142,13 @@ def run():
                 sleep(0.3)
                 command = ''
         
-
+        if loop_true ==  False:
+            print('Twitch bot has stopped')
+            break
 
         sleep(1)
+        
+
 
                 
 

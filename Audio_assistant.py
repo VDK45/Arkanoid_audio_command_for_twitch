@@ -39,7 +39,10 @@ def command_ru():
 
 def command():
      r = sr.Recognizer()
-
+     global assis
+     if assis == False:
+         print('AA Stopped')
+         sys.exit()
      with sr.Microphone() as source:
           print("Говорите!")
           r.pause_threshold = 1 # ждать команды
@@ -65,7 +68,7 @@ def actions(phrase):
           tb.send_mess('!right')
      
      if 'stop' in  phrase or assis == False:
-          talk('ok')
+          talk("ok, i stopped")
           assis = False
           sys.exit()
      else:
@@ -73,8 +76,12 @@ def actions(phrase):
 
 
 def run():
+     global assis
      while assis:
           actions(command())
+          if assis == False:
+            sys.exit()
+            break
 
 
 
