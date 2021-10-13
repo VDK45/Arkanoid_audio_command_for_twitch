@@ -1,3 +1,5 @@
+#!/usr/bin/python3.9
+# Setup Python ----------------------------------------------- #
 import sys
 import os
 import pygame
@@ -5,13 +7,9 @@ from random import randrange as rnd
 import time
 import threading
 from threading import Timer
+import pyperclip
 import twitch_bot
 import Audio_assistant as aa
-
-thread1 = threading.Thread(target=twitch_bot.run, args=())
-thread1.start()
-thread2 = threading.Thread(target=aa.run, args=())
-thread2.start()
 
 def resource_path(relative_path):
     try:
@@ -22,11 +20,7 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-
-
-
 WIDTH, HEIGHT = 1280, 720
-fps = 24
 # Text
 pygame.font.init() 
 tf2build_font1 = resource_path('resource/tf2build.ttf')
@@ -36,22 +30,6 @@ myfont  = pygame.font.Font(tf2build_font1, 16)
 #textsurface = myfont.render('Пишите в чат: !left или !right чтобы начать игру!', False, (255, 255, 0))
 textsurface2 = myfont.render('Write to chat: !Left or !Right to start the game!', False, (255, 0, 255))
 textpaddle = myfont.render(f'{twitch_bot.chater}:  {twitch_bot.message}', False, (255, 255, 80))
-
-# Sound
-pygame.mixer.init()
-sms_sound = resource_path("sound/sms.wav")
-sms = pygame.mixer.Sound(sms_sound)
-
-def show_command(x, y, chater, message):
-    message = myfont.render(f'{chater}:  {message}', True, (0, 255, 255))
-    sc.blit(message, (x, y))
-
-def show_chat(x, y, chater, message):
-    global count_chat
-    message = smallfon.render(f'{chater}:  {message}', True, (255, 255, 255))
-    sc.blit(message, (x, y))
-    
-
 # paddle settings
 paddle_w = 500
 paddle_h = 50
@@ -93,127 +71,353 @@ def detect_collision(dx, dy, ball, rect):
         dx = -dx
     return dx, dy
 
+# Sound
+pygame.mixer.init()
+sms_sound = resource_path("sound/sms.wav")
+sms = pygame.mixer.Sound(sms_sound)
 
+def show_command(x, y, chater, message):
+    message = myfont.render(f'{chater}:  {message}', True, (0, 255, 255))
+    sc.blit(message, (x, y))
 
-reset = False
-loop = True
-while loop:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+def show_chat(x, y, chater, message):
+    global count_chat
+    message = smallfon.render(f'{chater}:  {message}', True, (255, 255, 255))
+    sc.blit(message, (x, y))
+# Ativate modules
+thread1 = threading.Thread(target=twitch_bot.run, args=())
+thread1.start()
+thread2 = threading.Thread(target=aa.run, args=())
+thread2.start()
+# Setup pygame/window ---------------------------------------- #
+mainClock = pygame.time.Clock()
+from pygame.locals import *
+pygame.init()
+pygame.display.set_caption('Arkanoid for  Twitch chat play')
+screen = pygame.display.set_mode((1280, 720),0,32)
+# Colors
+white = (255, 255, 255)
+green = (0, 255, 0)
+blue = (0, 0, 255)
+red = (255, 0, 0)
+# Текст
+font = pygame.font.SysFont(None, 50) 
+ 
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, 1, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)
+ 
+click = False
+ 
+def main_menu():
+    while True:
+ 
+        screen.fill((0, 255, 0))
+        draw_text('Menu', font, (0, 0, 255), screen, 80, 30)
+        
+        mx, my = pygame.mouse.get_pos()
+ 
+        button_1 = pygame.Rect(50, 100, 200, 50)
+        button_2 = pygame.Rect(50, 200, 250, 50)
+        button_3 = pygame.Rect(50, 300, 300, 50)
+        if button_1.collidepoint((mx, my)):
+            if click:
+                game()
+        if button_2.collidepoint((mx, my)):
+            if click:
+                chanel()
+        if button_3.collidepoint((mx, my)):
+            if click:
+                password()
+        pygame.draw.rect(screen, (255, 0, 0), button_1)
+        pygame.draw.rect(screen, (255, 0, 0), button_2)
+        pygame.draw.rect(screen, (255, 0, 0), button_3)
+        click = False
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                twitch_bot.loop_true = False # Stop twitch bot
+                twitch_bot.send_mess('ARKANOID has stopped')
+                aa.assis = False # Audio assis stop
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    twitch_bot.loop_true = False # Stop twitch bot
+                    twitch_bot.send_mess('ARKANOID has stopped')
+                    aa.assis = False # Audio assis stop
+                    pygame.quit()
+                    sys.exit()
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+        draw_text('Game', font, (255, 255, 255), screen, 80, 110)
+        draw_text('Chanel', font, (255, 255, 255), screen, 80, 210)
+        draw_text('Password', font, (255, 255, 255), screen, 80, 310)
+        pygame.display.update()
+        mainClock.tick(60)
+ 
+def game():
+    # paddle settings
+    paddle_w = 500
+    paddle_h = 50
+    paddle_speed = 15
+    paddle = pygame.Rect(WIDTH // 2 - paddle_w // 2, HEIGHT - paddle_h, paddle_w, paddle_h)
+    # ball settings
+    ball_radius = 20
+    ball_speed = 1
+    ball_rect = int(ball_radius * 2 ** 0.5)
+    ball = pygame.Rect(rnd(ball_rect, WIDTH - ball_rect), HEIGHT // 2, ball_rect, ball_rect)
+    dx, dy = 1, -1
+    # blocks settings
+    block_list = [pygame.Rect(50 + 120 * i, 10 + 70 * j, 100, 50) for i in range(10) for j in range(2)]
+    color_list = [(rnd(30, 256), rnd(30, 200), rnd(30, 256)) for i in range(10) for j in range(2)]
+
+    reset = False
+    running = True
+    while running:
+        screen.fill((0,255,0))
+        
+        
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                twitch_bot.loop_true = False # Stop twitch bot
+                twitch_bot.send_mess('ARKANOID has stopped')
+                aa.assis = False # Audio assis stop
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+        # drawing world
+        [pygame.draw.rect(sc, color_list[color], block) for color, block in enumerate(block_list)]
+        pygame.draw.rect(sc, pygame.Color('darkorange'), paddle)
+        pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
+        # ball movement
+        ball.x += ball_speed * dx
+        ball.y += ball_speed * dy
+        # collision left right
+        if ball.centerx < ball_radius or ball.centerx > WIDTH - ball_radius:
+            dx = -dx
+        # collision top
+        if ball.centery < ball_radius:
+            dy = -dy
+        # collision paddle
+        if ball.colliderect(paddle) and dy > 0:
+            dx, dy = detect_collision(dx, dy, ball, paddle)
+        # collision blocks
+        hit_index = ball.collidelist(block_list)
+        if hit_index != -1:
+            hit_rect = block_list.pop(hit_index)
+            hit_color = color_list.pop(hit_index)
+            dx, dy = detect_collision(dx, dy, ball, hit_rect)
+
+        # win, game over
+        if ball.bottom > HEIGHT:
+            print('GAME OVER!')
+            reset = True
+            ball.x = paddle.left + paddle_w // 2 - 25
+            ball.y = 636
+            block_list.clear()
+            block_list = [pygame.Rect(50 + 120 * i, 10 + 70 * j, 100, 50) for i in range(10) for j in range(2)]
+            color_list = [(rnd(30, 256), rnd(30, 200), rnd(30, 256)) for i in range(10) for j in range(2)]
+            dx, dy = 0, 0
+            #exit()
+        elif not len(block_list):
+            print('WIN!!!')
+            reset = True
+            ball.x = paddle.left + paddle_w // 2 - 25
+            ball.y = 636
+            block_list.clear()
+            block_list = [pygame.Rect(50 + 120 * i, 10 + 70 * j, 100, 50) for i in range(10) for j in range(2)]
+            color_list = [(rnd(30, 256), rnd(30, 200), rnd(30, 256)) for i in range(10) for j in range(2)]
+            dx, dy = 0, 0
+            #exit()
+                
+        # control
+        key = pygame.key.get_pressed()
+        if key[pygame.K_LEFT] and paddle.left > 0:
+            paddle.left -= paddle_speed
+            if reset == True:
+                dx, dy = 1, -1
+            reset = False
+        if key[pygame.K_RIGHT] and paddle.right < WIDTH:
+            paddle.right += paddle_speed
+            if reset == True:
+                dx, dy = -1, -1
+            reset = False
+        if key[pygame.K_BACKSPACE]:
             loop = False
-    sc.fill((0, 255, 0)) 
-    sc.blit(img, (0, 0))
-   
-    # drawing world
-    [pygame.draw.rect(sc, color_list[color], block) for color, block in enumerate(block_list)]
-    pygame.draw.rect(sc, pygame.Color('darkorange'), paddle)
-    pygame.draw.circle(sc, pygame.Color('white'), ball.center, ball_radius)
-    # ball movement
-    ball.x += ball_speed * dx
-    ball.y += ball_speed * dy
-    # collision left right
-    if ball.centerx < ball_radius or ball.centerx > WIDTH - ball_radius:
-        dx = -dx
-    # collision top
-    if ball.centery < ball_radius:
-        dy = -dy
-    # collision paddle
-    if ball.colliderect(paddle) and dy > 0:
-        dx, dy = detect_collision(dx, dy, ball, paddle)
-    # collision blocks
-    hit_index = ball.collidelist(block_list)
-    if hit_index != -1:
-        hit_rect = block_list.pop(hit_index)
-        hit_color = color_list.pop(hit_index)
-        dx, dy = detect_collision(dx, dy, ball, hit_rect)
-        # special effect
-        hit_rect.inflate_ip(ball.width * 3, ball.height * 3)
-        pygame.draw.rect(sc, hit_color, hit_rect)
-        fps += 0
-    # win, game over
-    if ball.bottom > HEIGHT:
-        print('GAME OVER!')
-        reset = True
-        ball.x = paddle.left + paddle_w // 2 - 25
-        ball.y = 636
-        block_list.clear()
-        block_list = [pygame.Rect(50 + 120 * i, 10 + 70 * j, 100, 50) for i in range(10) for j in range(2)]
-        color_list = [(rnd(30, 256), rnd(30, 200), rnd(30, 256)) for i in range(10) for j in range(2)]
-        dx, dy = 0, 0
-        #exit()
-    elif not len(block_list):
-        print('WIN!!!')
-        reset = True
-        ball.x = paddle.left + paddle_w // 2 - 25
-        ball.y = 636
-        block_list.clear()
-        block_list = [pygame.Rect(50 + 120 * i, 10 + 70 * j, 100, 50) for i in range(10) for j in range(2)]
-        color_list = [(rnd(30, 256), rnd(30, 200), rnd(30, 256)) for i in range(10) for j in range(2)]
-        dx, dy = 0, 0
-        #exit()
-    # control
-    key = pygame.key.get_pressed()
-    if key[pygame.K_LEFT] and paddle.left > 0:
-        paddle.left -= paddle_speed
-        if reset == True:
-            dx, dy = 1, -1
-        reset = False
-    if key[pygame.K_RIGHT] and paddle.right < WIDTH:
-        paddle.right += paddle_speed
-        if reset == True:
-            dx, dy = -1, -1
-        reset = False
-    if key[pygame.K_ESCAPE]:
-        loop = False
-        twitch_bot.loop_true = False # Stop twitch bot
-        aa.assis = False # Audio assis stop
-    # Twitch control
-    if twitch_bot.command == '!left' and paddle.left > 0 or twitch_bot.command == '!l' and paddle.left > 0:
-        paddle.left -= paddle_speed
-        if reset == True:
-            dx, dy = 1, -1
-        reset = False
-    if twitch_bot.command == '!right' and paddle.right < WIDTH or twitch_bot.command == '!r' and paddle.right < WIDTH:
-        paddle.left += paddle_speed
-        if reset == True:
-            dx, dy = 1, -1
-        reset = False
+            twitch_bot.loop_true = False # Stop twitch bot
+            aa.assis = False # Audio assis stop
+        # Twitch control
+        if twitch_bot.command == '!left' and paddle.left > 0 or twitch_bot.command == '!l' and paddle.left > 0:
+            paddle.left -= paddle_speed
+            if reset == True:
+                dx, dy = 1, -1
+            reset = False
+        if twitch_bot.command == '!right' and paddle.right < WIDTH or twitch_bot.command == '!r' and paddle.right < WIDTH:
+            paddle.left += paddle_speed
+            if reset == True:
+                dx, dy = 1, -1
+            reset = False
 
-    try:
-        if twitch_bot.sound == True :
-            sms.play()
-    except IndexError:
-        continue
-    
-    # TEXT
-    if reset == True:
-        #sc.blit(textsurface,(50,570))
-        sc.blit(textsurface2,(paddle.left + 20,700))
-    if twitch_bot.message[:1] == '!' and twitch_bot.chater != 'nightbot' and len(twitch_bot.command) <= 10:
-        show_command(paddle.left + 170, 680, twitch_bot.chater, twitch_bot.message)
-    
-    show_chat(15, 390, twitch_bot.lst_chat[6], twitch_bot.lst_chat[7])
-    show_chat(15, 410, twitch_bot.lst_chat[4], twitch_bot.lst_chat[5])
-    show_chat(15, 430, twitch_bot.lst_chat[2], twitch_bot.lst_chat[3])
-    show_chat(15, 450, twitch_bot.lst_chat[0], twitch_bot.lst_chat[1])
-    # update screen
-    pygame.display.flip()
-    clock.tick(fps)
-    keys = pygame.key.get_pressed()
-    keys_pres = pygame.key.get_pressed()
-    # pygame.time.delay(50)
-    for even in pygame.event.get():
-        if even.type == pygame.QUIT:
-            loop = False
-        if keys_pres[pygame.K_ESCAPE]:
-            loop = False
-    
-    
+        try:
+            if twitch_bot.sound == True :
+                sms.play()
+        except IndexError:
+            continue
+            
+        #  SHOW COMMANDS at paddle
+        if reset == True:
+            #sc.blit(textsurface,(50,570))
+            sc.blit(textsurface2,(paddle.left + 20,700))
+        if twitch_bot.message[:1] == '!' and twitch_bot.chater != 'nightbot' and len(twitch_bot.command) <= 10:
+            show_command(paddle.left + 170, 680, twitch_bot.chater, twitch_bot.message)
+            
+        show_chat(15, 390, twitch_bot.lst_chat[6], twitch_bot.lst_chat[7])
+        show_chat(15, 410, twitch_bot.lst_chat[4], twitch_bot.lst_chat[5])
+        show_chat(15, 430, twitch_bot.lst_chat[2], twitch_bot.lst_chat[3])
+        show_chat(15, 450, twitch_bot.lst_chat[0], twitch_bot.lst_chat[1])
+        # update screen
+        pygame.display.flip()
+##        pygame.display.update()
+        mainClock.tick(60)
+        keys = pygame.key.get_pressed()
+        keys_pres = pygame.key.get_pressed()
+        # pygame.time.delay(50)
+        
+
+ 
+def chanel():
+    running = True
+    font = pygame.font.Font(None, 32)
+    clock = pygame.time.Clock()
+    input_box = pygame.Rect(100, 100, 140, 32)
+    color_inactive = pygame.Color('lightskyblue3')
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    text = ''
+    while running:
+        screen.fill((0,255,0))
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                twitch_bot.loop_true = False # Stop twitch bot
+                twitch_bot.send_mess('ARKANOID has stopped')
+                aa.assis = False # Audio assis stop
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+                    
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # If the user clicked on the input_box rect.
+                if input_box.collidepoint(event.pos):
+                    # Toggle the active variable.
+                    active = not active
+                else:
+                    active = False
+                # Change the current color of the input box.
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        f = open('config.py', 'a')
+                        f.write(f'CHAN = "{text}"\n')
+                        f.close()
+                        print(text)
+                        text = ''
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+
+        screen.fill((0, 255, 0))
+        # Render the current text.
+        txt_surface = font.render(text, True, color)
+        # Resize the box if the text is too long.
+        width = max(200, txt_surface.get_width()+10)
+        input_box.w = width
+        # Blit the text.
+        screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+        # Blit the input_box rect.
+        pygame.draw.rect(screen, color, input_box, 2)
+        draw_text('Enter your twitch Chanel!', font, (0, 0, 0), screen, 50, 50)
 
 
+        
+        
+        pygame.display.update()
+        mainClock.tick(60)
 
-print('Game stoped')
-twitch_bot.loop_true = False # Stop twitch bot
-twitch_bot.send_mess('ARKANOID has stopped')
-aa.assis = False # Audio assis stop
-pygame.quit()
+def password():
+    running = True
+    font = pygame.font.Font(None, 32)
+    clock = pygame.time.Clock()
+    input_box = pygame.Rect(100, 100, 140, 32)
+    color_inactive = pygame.Color('lightskyblue3')
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    text = ''
+    while running:
+        screen.fill((0,255,0))
+        draw_text('Password', font, (255, 255, 255), screen, 20, 20)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                twitch_bot.loop_true = False # Stop twitch bot
+                twitch_bot.send_mess('ARKANOID has stopped')
+                aa.assis = False # Audio assis stop
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # If the user clicked on the input_box rect.
+                if input_box.collidepoint(event.pos):
+                    # Toggle the active variable.
+                    text = pyperclip.paste()
+                    f = open('config.py', 'a')
+                    f.write(f'PASS = "{text}"\n')
+                    f.close()
+                    print(text)
+                    active = not active
+                else:
+                    active = False
+                # Change the current color of the input box.
+                color = color_active if active else color_inactive
+            if event.type == pygame.KEYDOWN:
+                if active:
+                    if event.key == pygame.K_RETURN:
+                        text = ''
+                        print(text)
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+
+        screen.fill((0, 255, 0))
+        # Render the current text.
+        txt_surface = font.render(text, True, color)
+        # Resize the box if the text is too long.
+        width = max(200, txt_surface.get_width()+10)
+        input_box.w = width
+        # Blit the text.
+        screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
+        # Blit the input_box rect.
+        pygame.draw.rect(screen, color, input_box, 2)
+        draw_text('Enter your twitch Password and reset game!', font, (0, 0, 0), screen, 50, 50)
+
+        
+        
+        pygame.display.update()
+        mainClock.tick(60)
+
+
+
+main_menu()
+

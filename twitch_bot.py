@@ -34,12 +34,10 @@ def run():
     s.send("JOIN #{}\r\n".format(config.CHAN).encode("utf-8"))
     ##chat_message = re.compile(r"^:\w+!\w+@\w+.tmi\.twitch\.tv PRIVMSG #\w+ :")
     chat_message = re.compile(r"^w+")
-    description = utils.mess(s, "TF2D Начинается! Вводите команды для управления" )
-    description2 = utils.mess(s, "Pyro: !fire или  !f !left или !l !right или !r !medic или !m !jump или !j" )
-    description3 = utils.mess(s, "Heavy: !fire или  !f !left или !l !right или !r !medic или !m !jump или !j")
+    description = utils.mess(s, "Arkanoid Начинается! Вводите команды для управления" )
+    description2 = utils.mess(s, "!left или  !right" )
     description
     description2
-    description3
     global sound
     global command
     global message
@@ -104,12 +102,6 @@ def run():
                 
             if command == '!help':
                 utils.mess(s, 'ARKANOID made by VDK45')
-            if command == '!left':
-                sleep(1)
-                command = ''
-            if command == '!right':
-                sleep(1)
-                command = ''
             if command == '!l':
                 command = '!left'
                 sleep(0.1)
@@ -118,26 +110,12 @@ def run():
                 command = '!right'
                 sleep(0.1)
                 command = ''
-            if command == '#left':
-                sleep(1)
+            if command == '!left':
+                sleep(0.3)
                 command = ''
-            if command == '!j':
-                sleep(0.1)
-                command = '' 
-            if command == '#right':
-                sleep(1)
+            if command == '!right':
+                sleep(0.3)
                 command = ''
-            if command == '#l':
-                command = '#left'
-                sleep(0.1)
-                command = ''
-            if command == '#r':
-                command = '#right'
-                sleep(0.1)
-                command = ''
-            if command == '#j':
-                sleep(0.1)
-                command = '' 
             if command == '!reset':
                 sleep(0.3)
                 command = ''
