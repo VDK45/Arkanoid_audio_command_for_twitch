@@ -9,7 +9,9 @@ import threading
 from threading import Timer
 import pyperclip
 import twitch_bot
+
 import Audio_assistant as aa
+import webbrowser
 
 def resource_path(relative_path):
     try:
@@ -102,7 +104,8 @@ blue = (0, 0, 255)
 red = (255, 0, 0)
 # Текст
 font = pygame.font.SysFont(None, 50) 
- 
+font2 = pygame.font.SysFont(None, 70) 
+
 def draw_text(text, font, color, surface, x, y):
     textobj = font.render(text, 1, color)
     textrect = textobj.get_rect()
@@ -110,10 +113,12 @@ def draw_text(text, font, color, surface, x, y):
     surface.blit(textobj, textrect)
  
 click = False
- 
+
+text_hind = 'OAuth Password'
 def main_menu():
+    
     while True:
- 
+        global click
         screen.fill((0, 255, 0))
         draw_text('Menu', font, (0, 0, 255), screen, 80, 30)
         
@@ -324,6 +329,7 @@ def chanel():
                 color = color_active if active else color_inactive
             if event.type == pygame.KEYDOWN:
                 if active:
+
                     if event.key == pygame.K_RETURN:
                         f = open('config.py', 'a')
                         f.write(f'CHAN = "{text}"\n')
@@ -353,17 +359,23 @@ def chanel():
         pygame.display.update()
         mainClock.tick(60)
 
+        
+
 def password():
+    global text_hind
     running = True
     font = pygame.font.Font(None, 32)
     clock = pygame.time.Clock()
-    input_box = pygame.Rect(100, 100, 140, 32)
+
+    
+    input_box = pygame.Rect(100, 450, 100, 50)
     color_inactive = pygame.Color('lightskyblue3')
     color_active = pygame.Color('dodgerblue2')
     color = color_inactive
     active = False
     text = ''
     while running:
+        click = False
         screen.fill((0,255,0))
         draw_text('Password', font, (255, 255, 255), screen, 20, 20)
         for event in pygame.event.get():
@@ -375,16 +387,18 @@ def password():
                 sys.exit()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    text_hind = 'OAuth Password'
                     running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # If the user clicked on the input_box rect.
                 if input_box.collidepoint(event.pos):
                     # Toggle the active variable.
-                    text = pyperclip.paste()
+                    text = pyperclip.paste() # Paste password
+                    text_hind = ''
                     f = open('config.py', 'a')
                     f.write(f'PASS = "{text}"\n')
                     f.close()
-                    print(text)
+                    #print(text)
                     active = not active
                 else:
                     active = False
@@ -392,6 +406,7 @@ def password():
                 color = color_active if active else color_inactive
             if event.type == pygame.KEYDOWN:
                 if active:
+
                     if event.key == pygame.K_RETURN:
                         text = ''
                         print(text)
@@ -399,21 +414,43 @@ def password():
                         text = text[:-1]
                     else:
                         text += event.unicode
-
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+        
+        
         screen.fill((0, 255, 0))
         # Render the current text.
         txt_surface = font.render(text, True, color)
         # Resize the box if the text is too long.
+
         width = max(200, txt_surface.get_width()+10)
         input_box.w = width
+
         # Blit the text.
         screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
         # Blit the input_box rect.
         pygame.draw.rect(screen, color, input_box, 2)
-        draw_text('Enter your twitch Password and reset game!', font, (0, 0, 0), screen, 50, 50)
-
-        
-        
+        # Text
+        draw_text('Attention!', font2, (255, 0, 0), screen, 50, 30)
+        draw_text("Do not show your password!", font, (255, 0, 0), screen, 50, 100)
+        draw_text("Don't forget to turn off stream!", font, (255, 0, 0), screen, 50, 150)
+        draw_text('Get your twitch Password!', font, (0, 0, 0), screen, 50, 250)
+        draw_text('Enter your twitch Password:', font, (0, 0, 0), screen, 50, 400)
+        draw_text('And reset game!', font, (0, 0, 0), screen, 50, 550)
+        # Text hinde
+        draw_text(text_hind, font, (255, 255, 255), screen, 110, 465)
+        # Get click
+        mx, my = pygame.mouse.get_pos()
+        button_1 = pygame.Rect(100, 300, 270, 50)
+        pygame.draw.rect(screen, (255, 0, 0), button_1)
+        draw_text('Get OAuth Password', font, (255, 255, 255), screen, 120, 315)
+        if button_1.collidepoint((mx, my)):
+            if click:
+                print('Connect to Twitch. Please Copy Twitch Chat OAuth Password!')
+                print('Example:  oauth:g138k3tlk87z5ji3yu4fq8qv65y95s')
+                webbrowser.open('http://twitchapps.com/tmi/')
+        click = False
         pygame.display.update()
         mainClock.tick(60)
 

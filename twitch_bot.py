@@ -5,6 +5,7 @@ import socket
 import re
 import time
 from time import sleep
+import sys
 
 command = ''
 message = 'Hello world!'
@@ -28,7 +29,11 @@ def run():
     global description2
     global description3
     s = socket.socket()
-    s.connect((config.HOST, config.PORT))
+    try:
+        s.connect((config.HOST, config.PORT))
+    except TimeoutError:
+        print('Twitch connection failed')
+        sys.exit()
     s.send("PASS {}\r\n".format(config.PASS).encode("utf-8"))
     s.send("NICK {}\r\n".format(config.NICK).encode("utf-8"))
     s.send("JOIN #{}\r\n".format(config.CHAN).encode("utf-8"))
