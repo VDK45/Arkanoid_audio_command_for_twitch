@@ -4,7 +4,7 @@ import os
 import sys
 import webbrowser
 import pyttsx3
-import config as cfg
+import cfg
 
 assis = True
 
@@ -17,7 +17,7 @@ def talk(words):
      engine.say(words)
      engine.runAndWait()
      
-talk(f'Привет, {cfg.CHAN}')
+#talk(f'Привет, {cfg.CHAN}')
 
 
 def command_ru():

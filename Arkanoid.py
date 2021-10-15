@@ -13,6 +13,14 @@ import twitch_bot
 import Audio_assistant as aa
 import webbrowser
 
+##f = open('config.py', 'w')
+##f.write('HOST = "irc.twitch.tv"\n')
+##f.write('PORT = 6667\n')
+##f.write('NICK = "bot"\n')
+##f.write('RATE = (20/30)\n')
+##f.write('oplist = {"username":[""]}\n')
+##f.close()
+
 def resource_path(relative_path):
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -29,7 +37,9 @@ tf2build_font1 = resource_path('resource/tf2build.ttf')
 tf2secondary_font1 = resource_path('resource/tf2secondary.ttf')
 smallfon = pygame.font.Font(tf2build_font1, 18)
 myfont  = pygame.font.Font(tf2build_font1, 16)
-#textsurface = myfont.render('Пишите в чат: !left или !right чтобы начать игру!', False, (255, 255, 0))
+font  = pygame.font.Font(tf2build_font1, 30)
+font2  = pygame.font.Font(tf2build_font1, 50)
+# textsurface = myfont.render('Пишите в чат: !left или !right чтобы начать игру!', False, (255, 255, 0))
 textsurface2 = myfont.render('Write to chat: !Left or !Right to start the game!', False, (255, 0, 255))
 textpaddle = myfont.render(f'{twitch_bot.chater}:  {twitch_bot.message}', False, (255, 255, 80))
 # paddle settings
@@ -102,9 +112,6 @@ white = (255, 255, 255)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
-# Текст
-font = pygame.font.SysFont(None, 50) 
-font2 = pygame.font.SysFont(None, 70) 
 
 def draw_text(text, font, color, surface, x, y):
     textobj = font.render(text, 1, color)
@@ -157,9 +164,9 @@ def main_menu():
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
-        draw_text('Game', font, (255, 255, 255), screen, 80, 110)
-        draw_text('Chanel', font, (255, 255, 255), screen, 80, 210)
-        draw_text('Password', font, (255, 255, 255), screen, 80, 310)
+        draw_text('Game', font, (255, 255, 255), screen, 80, 115)
+        draw_text('Chanel', font, (255, 255, 255), screen, 80, 215)
+        draw_text('Password', font, (255, 255, 255), screen, 80, 315)
         pygame.display.update()
         mainClock.tick(60)
  
@@ -297,7 +304,7 @@ def game():
  
 def chanel():
     running = True
-    font = pygame.font.Font(None, 32)
+    font = pygame.font.Font(tf2build_font1, 30)
     clock = pygame.time.Clock()
     input_box = pygame.Rect(100, 100, 140, 32)
     color_inactive = pygame.Color('lightskyblue3')
@@ -331,8 +338,8 @@ def chanel():
                 if active:
 
                     if event.key == pygame.K_RETURN:
-                        f = open('config.py', 'a')
-                        f.write(f'CHAN = "{text}"\n')
+                        f = open('chanel.txt', 'w+')
+                        f.write(f'{text}')
                         f.close()
                         print(text)
                         text = ''
@@ -364,7 +371,7 @@ def chanel():
 def password():
     global text_hind
     running = True
-    font = pygame.font.Font(None, 32)
+    font = pygame.font.Font(tf2build_font1, 20)
     clock = pygame.time.Clock()
 
     
@@ -395,8 +402,8 @@ def password():
                     # Toggle the active variable.
                     text = pyperclip.paste() # Paste password
                     text_hind = ''
-                    f = open('config.py', 'a')
-                    f.write(f'PASS = "{text}"\n')
+                    f = open('password.txt', 'w+')
+                    f.write(f'{text}')
                     f.close()
                     #print(text)
                     active = not active

@@ -1,5 +1,5 @@
 ﻿import random
-import config
+import cfg
 import utils
 import socket
 import re
@@ -7,37 +7,61 @@ import time
 from time import sleep
 import sys
 
+try:
+    file_c = open('chanel.txt', 'r', encoding='utf-8')
+    CHANEL = file_c.read()
+    print(f'chanel = {CHANEL}')
+    file_c.close()
+except IOError as err:
+    print('Please enter your CHANEL!')
+    print(err)
+    
+    
+try:
+    file_P = open('password.txt', 'r', encoding='utf-8')
+    PASWORD = file_P.read()
+    print(f'password = {PASWORD}')
+    file_P.close()
+except IOError as err:
+    print('Please enter your PASWORD!')
+    print(err)
+    print('Please enter your PASWORD!')
+
 command = ''
 message = 'Hello world!'
 chater = 'VDK_45'
 loop_true = True
-lst_chat = ['VDK45', 'Hello world!', 'VDK45', 'TF2D', 'VDK45', 'This is my first project', 'VDK45', 'Python']
+lst_chat = ['VDK45', 'Hello world!', 'VDK45', 'ARKANOID', 'VDK45', 'This is my first project', 'VDK45', 'Python']
 sound = False
 def send_mess(x):
+    global CHANEL
+    global PASWORD
     s = socket.socket()
-    s.connect((config.HOST, config.PORT))
-    s.send("PASS {}\r\n".format(config.PASS).encode("utf-8"))
-    s.send("NICK {}\r\n".format(config.NICK).encode("utf-8"))
-    s.send("JOIN #{}\r\n".format(config.CHAN).encode("utf-8"))
+    s.connect((cfg.HOST, cfg.PORT))
+    s.send("PASS {}\r\n".format(PASWORD).encode("utf-8"))
+    s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
+    s.send("JOIN #{}\r\n".format(CHANEL).encode("utf-8"))
     #chat_message = re.compile(r"^w+")
     utils.mess(s, x)
 
 
 
 def run():
+    global CHANEL
+    global PASWORD
     global description
     global description2
     global description3
     s = socket.socket()
     try:
-        s.connect((config.HOST, config.PORT))
+        s.connect((cfg.HOST, cfg.PORT))
     except TimeoutError:
         print('Twitch connection failed')
         sys.exit()
-    s.send("PASS {}\r\n".format(config.PASS).encode("utf-8"))
-    s.send("NICK {}\r\n".format(config.NICK).encode("utf-8"))
-    s.send("JOIN #{}\r\n".format(config.CHAN).encode("utf-8"))
-    ##chat_message = re.compile(r"^:\w+!\w+@\w+.tmi\.twitch\.tv PRIVMSG #\w+ :")
+    s.send("PASS {}\r\n".format(PASWORD).encode("utf-8"))
+    s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
+    s.send("JOIN #{}\r\n".format(CHANEL).encode("utf-8"))
+    chat_message = re.compile(r"^:\w+!\w+@\w+.tmi\.twitch\.tv PRIVMSG #\w+ :")
     chat_message = re.compile(r"^w+")
     description = utils.mess(s, "Arkanoid Начинается! Вводите команды для управления" )
     description2 = utils.mess(s, "!left или  !right" )
@@ -131,9 +155,3 @@ def run():
 
         sleep(1)
         
-
-
-                
-
-
-
