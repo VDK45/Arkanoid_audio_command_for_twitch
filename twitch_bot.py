@@ -19,13 +19,12 @@ except IOError as err:
     
 try:
     file_P = open('password.txt', 'r', encoding='utf-8')
-    PASWORD = file_P.read()
-    print(f'password = {PASWORD}')
+    PASSWORD = file_P.read()
+    print(f'password = {PASSWORD}')
     file_P.close()
 except IOError as err:
-    print('Please enter your PASWORD!')
+    print('Please enter your PASSWORD!')
     print(err)
-    print('Please enter your PASWORD!')
 
 command = ''
 message = 'Hello world!'
@@ -35,12 +34,16 @@ lst_chat = ['VDK45', 'Hello world!', 'VDK45', 'ARKANOID', 'VDK45', 'This is my f
 sound = False
 def send_mess(x):
     global CHANEL
-    global PASWORD
+    global PASSWORD
     s = socket.socket()
     s.connect((cfg.HOST, cfg.PORT))
-    s.send("PASS {}\r\n".format(PASWORD).encode("utf-8"))
-    s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
-    s.send("JOIN #{}\r\n".format(CHANEL).encode("utf-8"))
+    try:
+        s.send("PASS {}\r\n".format(PASSWORD).encode("utf-8"))
+        s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
+        s.send("JOIN #{}\r\n".format(CHANEL).encode("utf-8"))
+    except NameError:
+        print('Enter chanel an password!')
+        sys.exit()
     #chat_message = re.compile(r"^w+")
     utils.mess(s, x)
 
@@ -48,7 +51,7 @@ def send_mess(x):
 
 def run():
     global CHANEL
-    global PASWORD
+    global PASSWORD
     global description
     global description2
     global description3
@@ -58,9 +61,14 @@ def run():
     except TimeoutError:
         print('Twitch connection failed')
         sys.exit()
-    s.send("PASS {}\r\n".format(PASWORD).encode("utf-8"))
-    s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
-    s.send("JOIN #{}\r\n".format(CHANEL).encode("utf-8"))
+    try:
+        s.send("PASS {}\r\n".format(PASSWORD).encode("utf-8"))
+    
+        s.send("NICK {}\r\n".format(cfg.NICK).encode("utf-8"))
+        s.send("JOIN #{}\r\n".format(CHANEL).encode("utf-8"))
+    except NameError:
+        print('Enter chanel an password!!')
+        sys.exit()
     chat_message = re.compile(r"^:\w+!\w+@\w+.tmi\.twitch\.tv PRIVMSG #\w+ :")
     chat_message = re.compile(r"^w+")
     description = utils.mess(s, "Arkanoid Начинается! Вводите команды для управления" )
@@ -82,7 +90,10 @@ def run():
         if response == "PING :tmi.twitch.tv\r\n":
             s.send("POND :tmi.twitch.tv\r\n".encode("utf-8"))
         else:
-            username = re.search(r"\w+", response).group(0)
+            try:
+                username = re.search(r"\w+", response).group(0)
+            except AttributeError:
+                print('Enter your CHANEL and PASSWORD!')
             message = chat_message.sub("", response).lower()
             message = message[1:]
             
