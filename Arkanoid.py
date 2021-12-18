@@ -29,7 +29,9 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
-
+# icon
+icon_win = resource_path('resource/vdk.bmp')
+pygame.display.set_icon(pygame.image.load(icon_win))
 WIDTH, HEIGHT = 1280, 720
 # Text
 pygame.font.init() 
@@ -134,6 +136,7 @@ def main_menu():
         button_1 = pygame.Rect(50, 100, 200, 50)
         button_2 = pygame.Rect(50, 200, 250, 50)
         button_3 = pygame.Rect(50, 300, 300, 50)
+        button_4 = pygame.Rect(50, 500, 400, 50)
         if button_1.collidepoint((mx, my)):
             if click:
                 game()
@@ -143,9 +146,14 @@ def main_menu():
         if button_3.collidepoint((mx, my)):
             if click:
                 password()
+        if button_4.collidepoint((mx, my)):
+            if click:
+                print('Go to my chanel')
+                webbrowser.open('https://www.twitch.tv/vdk45')
         pygame.draw.rect(screen, (255, 0, 0), button_1)
         pygame.draw.rect(screen, (255, 0, 0), button_2)
         pygame.draw.rect(screen, (255, 0, 0), button_3)
+        pygame.draw.rect(screen, (255, 0, 0), button_4)
         click = False
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -167,6 +175,7 @@ def main_menu():
         draw_text('Game', font, (255, 255, 255), screen, 80, 115)
         draw_text('Chanel', font, (255, 255, 255), screen, 80, 215)
         draw_text('Password', font, (255, 255, 255), screen, 80, 315)
+        draw_text('twitch.tv/vdk45', font, (255, 255, 255), screen, 80, 515)
         pygame.display.update()
         mainClock.tick(60)
  
@@ -186,7 +195,9 @@ def game():
     block_list = [pygame.Rect(50 + 120 * i, 10 + 70 * j, 100, 50) for i in range(10) for j in range(2)]
     color_list = [(rnd(30, 256), rnd(30, 200), rnd(30, 256)) for i in range(10) for j in range(2)]
 
+
     reset = False
+
     running = True
     while running:
         screen.fill((0,255,0))
@@ -198,6 +209,7 @@ def game():
                 twitch_bot.send_mess('ARKANOID has stopped')
                 aa.assis = False # Audio assis stop
                 pygame.quit()
+
                 sys.exit()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
